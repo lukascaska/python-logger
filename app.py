@@ -1,24 +1,19 @@
-#!/usr/bin/python
+import datetime, logging, sys, json_logging, flask
 
-from http.server import BaseHTTPRequestHandler, HTTPServer
+app = flask.Flask(__name__)
+json_logging.ENABLE_JSON_LOGGING = True
+json_logging.init(framework_name='flask')
+json_logging.init_request_instrument(app)
 
-PORT_NUMBER = 8080
+# init the logger as usual
+logger = logging.getLogger("test-logger")
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler(sys.stdout))
 
-class MyHandler(BaseHTTPRequestHandler):
+@app.route('/')
+def home():
+    logger.info("test log statement", extra = {'props': {'type_log': 'business'}})
+    return "Hello world : " + str(datetime.datetime.now())
 
-  def do_GET(self):
-    """Handler for GET requests"""
-    self.send_response(200)
-    self.send_header('Content-type','image/png')
-    self.end_headers()
-    with open('logo.png', 'rb') as f:
-      self.wfile.write(f.read())
-
-try:
-  server = HTTPServer(('', PORT_NUMBER), MyHandler)
-  print('Started httpserver on port', PORT_NUMBER)
-  server.serve_forever()
-
-except KeyboardInterrupt:
-  server.server_close()
-  print('Stopping server')
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=int(8080), use_reloader=False)

@@ -1,1 +1,3 @@
 #Fill in dependencies here
+json_logging
+flask
